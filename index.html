@@ -314,6 +314,15 @@ function copiarVelho(texto){
   try { document.execCommand("copy"); } catch(e){}
   document.body.removeChild(ta);
 }
+function abrirPromo(id, i){
+  const st = (stories || []).find(function(x){ return x.id === id; });
+  const p = st && st.produtos && st.produtos[i];
+  if (!p) return;
+  const cupom = String(p.cupom || "").trim();
+  if (cupom) copiarEAbrir(cupom.toUpperCase(), p.link || "");
+  else if (p.link) window.open(p.link, "_blank", "noopener");
+}
+
 function copiarEAbrir(codigo, url){
   copiar(codigo, "Cupom " + codigo + " copiado! Abrindo a loja… 🛍️");
   if (url) setTimeout(function(){ window.open(url, "_blank", "noopener"); }, 350);
@@ -730,22 +739,22 @@ function rodapePadrao(){
 function telaStory(app, id){
   if (stories === null){
     app.innerHTML = `<div class="container">
-      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Promoções</span>${controles()}</div>
+      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Promoções</span></div>
       <div class="vazio"><div class="emoji">⏳</div>Carregando as promoções...</div></div></div>`;
     return;
   }
   const s = stories.find(function(x){ return x.id === id; });
   if (!s){
     app.innerHTML = `<div class="container">
-      <div class="janela"><div class="barra barra-rosa"><span>😢 Ops</span>${controles()}</div>
+      <div class="janela"><div class="barra barra-rosa"><span>😢 Ops</span></div>
       <div class="vazio"><div class="emoji">🔍</div>Não achei essas promoções.<br>Confere o link!</div></div></div>` + rodapePadrao();
     return;
   }
   const cards = (s.produtos || []).map(function(p, i){
     const cupom = String(p.cupom || "").trim();
     return `
-    <div class="card-prod">
-      <div class="barra ${i % 2 ? "barra-verde" : "barra-amarela"}"><span>🛍️ Promoção ${i+1}</span>${controles()}</div>
+    <div class="card-prod" style="cursor:pointer" onclick="abrirPromo('${esc(s.id)}', ${i})">
+      <div class="barra ${i % 2 ? "barra-verde" : "barra-amarela"}"><span>🛍️ Promoção ${i+1}</span></div>
       <div class="linha">
         ${p.img ? `<img class="foto" src="${esc(p.img)}" alt="${esc(p.nome)}">` : ""}
         <div class="info">
@@ -759,9 +768,9 @@ function telaStory(app, id){
         ${cupom ? `
         <div class="caixa-cupom">
           <span class="codigo-cupom">${esc(cupom.toUpperCase())}</span>
-          <button class="btn btn-verde btn-mini" onclick="copiarEAbrir('${esc(cupom.toUpperCase())}', '${esc(p.link || "")}')">Copiar cupom</button>
+          <span class="btn btn-verde btn-mini">Copiar cupom</span>
         </div>` : ""}
-        ${p.link ? `<a class="btn btn-lilas btn-bloco" style="margin-top:8px;padding:9px 14px" href="${esc(p.link)}" target="_blank" rel="noopener">🛒 PEGAR PROMOÇÃO ↗</a>` : ""}
+        ${p.link ? `<span class="btn btn-lilas btn-bloco" style="margin-top:8px;padding:9px 14px">🛒 PEGAR PROMOÇÃO ↗</span>` : ""}
       </div>
     </div>`;
   }).join("");
@@ -769,7 +778,7 @@ function telaStory(app, id){
   app.innerHTML = `
     <div class="container">
       <div class="janela">
-        <div class="barra barra-lilas"><span>👑 Promoções do story</span>${controles()}</div>
+        <div class="barra barra-lilas"><span>👑 Promoções do story</span></div>
         <div class="corpo" style="padding:12px 14px;text-align:center">
           <div class="hero-titulo" style="font-size:21px">📣 CORRE QUE TÁ VALENDO</div>
           <div class="hero-sub" style="margin-top:4px;font-size:13px">As 2 promoções do story, com link direto 👇</div>
