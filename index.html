@@ -516,7 +516,7 @@ async function desenharArte(story, canvas){
   ctx.font = fBar;
   ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
   ctx.strokeText(a1, bx, bcy + 2);
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = COR.amarelo;
   ctx.fillText(a1, bx, bcy + 2); bx += la1 + gapCo;
   ctx.font = "42px serif";
   ctx.fillStyle = COR.tinta;
@@ -525,7 +525,7 @@ async function desenharArte(story, canvas){
   ctx.font = fBar;
   ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
   ctx.strokeText(a2, bx, bcy + 2);
-  ctx.fillStyle = "#FFFFFF";
+  ctx.fillStyle = COR.amarelo;
   ctx.fillText(a2, bx, bcy + 2);
 
   /* ---- produtos ---- */
@@ -634,10 +634,15 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
 
   if (temTam){
     y += 24;
-    ctx.font = '700 30px "Space Grotesk"';
     const textoT = "📏 Tamanho: " + String(p.tamanho);
-    const largT = Math.min(txtLarg, ctx.measureText(textoT).width + 40);
-    const altT = 56;
+    let fT = 28;
+    ctx.font = '700 ' + fT + 'px "Space Grotesk"';
+    while (ctx.measureText(textoT).width + 36 > txtLarg && fT > 17){
+      fT -= 1;
+      ctx.font = '700 ' + fT + 'px "Space Grotesk"';
+    }
+    const largT = Math.min(txtLarg, ctx.measureText(textoT).width + 36);
+    const altT = Math.max(46, fT + 26);
     ctx.save();
     ctx.fillStyle = COR.lilas;
     rRect(ctx, txtX, y - 8, largT, altT, 14); ctx.fill();
@@ -645,16 +650,23 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
     rRect(ctx, txtX, y - 8, largT, altT, 14); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = COR.tinta;
-    ctx.fillText(textoT, txtX + 20, y + 28);
+    ctx.textBaseline = "middle";
+    ctx.fillText(textoT, txtX + 18, y - 8 + altT/2 + 2);
+    ctx.textBaseline = "alphabetic";
     y += altT - 2;
   }
 
   if (temCupom){
     y += 26;
-    ctx.font = '700 32px "Space Grotesk"';
-    const texto = "🎟️ CUPOM: " + String(p.cupom).toUpperCase();
-    const larg = Math.min(txtLarg, ctx.measureText(texto).width + 44);
-    const alt = 60;
+    const texto = "🎟️ Cupom: " + String(p.cupom).toUpperCase();
+    let fC = 30;
+    ctx.font = '700 ' + fC + 'px "Space Grotesk"';
+    while (ctx.measureText(texto).width + 40 > txtLarg && fC > 17){
+      fC -= 1;
+      ctx.font = '700 ' + fC + 'px "Space Grotesk"';
+    }
+    const larg = Math.min(txtLarg, ctx.measureText(texto).width + 40);
+    const alt = Math.max(50, fC + 28);
     ctx.save();
     ctx.fillStyle = COR.amarelo;
     rRect(ctx, txtX, y - 10, larg, alt, 14); ctx.fill();
@@ -662,7 +674,9 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
     rRect(ctx, txtX, y - 10, larg, alt, 14); ctx.stroke();
     ctx.restore();
     ctx.fillStyle = COR.tinta;
-    ctx.fillText(texto, txtX + 22, y + 31);
+    ctx.textBaseline = "middle";
+    ctx.fillText(texto, txtX + 20, y - 10 + alt/2 + 2);
+    ctx.textBaseline = "alphabetic";
   }
 }
 
@@ -745,7 +759,7 @@ function telaStory(app, id){
   app.innerHTML = `
     <div class="container">
       <div class="janela">
-        <div class="barra barra-lilas"><span>👑🤴 Promoções do story</span>${controles()}</div>
+        <div class="barra barra-lilas"><span>👑 Promoções do story</span>${controles()}</div>
         <div class="corpo" style="padding:12px 14px;text-align:center">
           <div class="hero-titulo" style="font-size:21px">📣 CORRE QUE TÁ VALENDO</div>
           <div class="hero-sub" style="margin-top:4px;font-size:13px">As 2 promoções do story, com link direto 👇</div>
