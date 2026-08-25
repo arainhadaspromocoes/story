@@ -503,13 +503,21 @@ async function desenharArte(story, canvas){
   let bx = ARTE_W/2 - total/2;
   const bcy = barY + barH/2;
   ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
   desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
-  ctx.fillStyle = COR.tinta; ctx.font = fBar;
+  ctx.font = fBar;
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
+  ctx.strokeText(a1, bx, bcy + 2);
+  ctx.fillStyle = "#FFFFFF";
   ctx.fillText(a1, bx, bcy + 2); bx += la1 + gapCo;
   ctx.font = "42px serif";
+  ctx.fillStyle = COR.tinta;
   ctx.fillText("👑", bx, bcy + 2); bx += coroaL + gapCo;
   desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
-  ctx.fillStyle = COR.tinta; ctx.font = fBar;
+  ctx.font = fBar;
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
+  ctx.strokeText(a2, bx, bcy + 2);
+  ctx.fillStyle = COR.amarelo;
   ctx.fillText(a2, bx, bcy + 2);
 
   /* ---- produtos ---- */
