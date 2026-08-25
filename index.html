@@ -480,41 +480,37 @@ async function desenharArte(story, canvas){
   const ctx = canvas.getContext("2d");
   desenharFundo(ctx);
 
-  /* ---- cabeçalho: barra + título com marca-texto + arrobas ---- */
-  const cab = desenharJanela(ctx, 60, 90, 960, 256, "#8FC1F5", "👑 Rainha & Imperador das Promoções");
-  /* título grandão estilo hero dos sites: PROMOÇÕES [EM DUPLA] */
-  ctx.font = '700 62px "Space Grotesk"';
-  const t1 = "PROMOÇÕES", t2 = "EM DUPLA";
-  const l1 = ctx.measureText(t1).width;
-  const l2 = ctx.measureText(t2).width + 44;
-  const totalT = l1 + 26 + l2;
-  let tx = ARTE_W/2 - totalT/2;
-  const ty = cab.cy + 74;
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = COR.azul;
-  ctx.fillText(t1, tx, ty);
-  tx += l1 + 26;
+  /* ---- cabeçalho: só a barrinha azul com os dois @ e a coroa ---- */
+  const barX = 60, barY = 100, barW = 960, barH = 94;
   ctx.fillStyle = COR.tinta;
-  rRect(ctx, tx + 5, ty - 39 + 5, l2, 78, 14); ctx.fill();
-  ctx.fillStyle = COR.amarelo;
-  rRect(ctx, tx, ty - 39, l2, 78, 14); ctx.fill();
-  ctx.fillStyle = COR.azul;
-  ctx.fillText(t2, tx + 22, ty);
-  /* arrobas soltos, lado a lado */
-  const fChip = '700 29px "Space Grotesk"';
-  const alturaChip = 58;
-  const w1 = medirChipInsta(ctx, "@arainhadaspromocoes", alturaChip, fChip);
-  const w2 = medirChipInsta(ctx, "@imperadordaspromocoes", alturaChip, fChip);
-  const gap = 44;
-  let cx0 = ARTE_W/2 - (w1 + gap + w2)/2;
-  const chipY = cab.cy + 126;
-  cx0 += chipInsta(ctx, "@arainhadaspromocoes", cx0, chipY, alturaChip, fChip) + gap;
-  chipInsta(ctx, "@imperadordaspromocoes", cx0, chipY, alturaChip, fChip);
+  rRect(ctx, barX + 12, barY + 12, barW, barH, 20); ctx.fill();
+  ctx.fillStyle = "#8FC1F5";
+  rRect(ctx, barX, barY, barW, barH, 20); ctx.fill();
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6;
+  rRect(ctx, barX, barY, barW, barH, 20); ctx.stroke();
+  /* conteúdo centralizado: [insta] @rainha 👑 [insta] @imperador */
+  const fBar = '700 30px "Space Grotesk"';
+  ctx.font = fBar;
+  const a1 = "@arainhadaspromocoes", a2 = "@imperadordaspromocoes";
+  const la1 = ctx.measureText(a1).width, la2 = ctx.measureText(a2).width;
+  const icone = 36, gapIc = 12, gapCo = 26, coroaL = 48;
+  const total = icone + gapIc + la1 + gapCo + coroaL + gapCo + icone + gapIc + la2;
+  let bx = ARTE_W/2 - total/2;
+  const bcy = barY + barH/2;
+  ctx.textBaseline = "middle";
+  desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
+  ctx.fillStyle = COR.tinta; ctx.font = fBar;
+  ctx.fillText(a1, bx, bcy + 2); bx += la1 + gapCo;
+  ctx.font = "42px serif";
+  ctx.fillText("👑", bx, bcy + 2); bx += coroaL + gapCo;
+  desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
+  ctx.fillStyle = COR.tinta; ctx.font = fBar;
+  ctx.fillText(a2, bx, bcy + 2);
 
   /* ---- produtos ---- */
   const prods = (story.produtos || []).slice(0, 2);
   const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
-  const topo = 386, altura = 572, folga = 34;
+  const topo = 256, altura = 610, folga = 36;
   prods.forEach(function(p, i){
     const y = prods.length === 1 ? topo + 200 : topo + i * (altura + folga);
     const jan = desenharJanela(ctx, 60, y, 960, altura,
@@ -543,7 +539,7 @@ async function desenharArte(story, canvas){
 function desenharProduto(ctx, p, img, jan, fotoDireita){
   const pad = 34;
   const temFoto = !!img;
-  const fotoLado = 440;
+  const fotoLado = 465;
   const fotoX = temFoto
     ? (fotoDireita ? jan.cx + jan.cw - pad - fotoLado - 6 : jan.cx + pad + 6)
     : 0;
