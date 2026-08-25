@@ -456,17 +456,29 @@ function desenharFundo(ctx){
   }
 }
 
-function desenharInsta(ctx, x, y, s){
+function desenharInsta(ctx, x, y, s, cor){
   /* símbolo do Instagram: quadrado arredondado + lente + pontinho */
+  const tom = cor || COR.tinta;
   ctx.save();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = Math.max(2.5, s * .09); ctx.lineCap = "round";
+  ctx.strokeStyle = tom; ctx.lineWidth = Math.max(2.5, s * .09); ctx.lineCap = "round";
   rRect(ctx, x, y, s, s, s * .3); ctx.stroke();
   ctx.beginPath();
   ctx.arc(x + s/2, y + s/2, s * .22, 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath();
   ctx.arc(x + s * .74, y + s * .26, s * .06, 0, Math.PI * 2);
-  ctx.fillStyle = COR.tinta; ctx.fill();
+  ctx.fillStyle = tom; ctx.fill();
   ctx.restore();
+}
+
+function gradInsta(ctx, x, y, s){
+  /* degradê oficial do Instagram */
+  const g = ctx.createLinearGradient(x, y + s, x + s, y);
+  g.addColorStop(0, "#FEDA75");
+  g.addColorStop(.3, "#FA7E1E");
+  g.addColorStop(.55, "#D62976");
+  g.addColorStop(.8, "#962FBF");
+  g.addColorStop(1, "#4F5BD5");
+  return g;
 }
 
 function chipInsta(ctx, arroba, x, y, alturaChip, fonte){
@@ -493,40 +505,38 @@ async function desenharArte(story, canvas){
   const ctx = canvas.getContext("2d");
   desenharFundo(ctx);
 
-  /* ---- cabeçalho: só a barrinha azul com os dois @ e a coroa ---- */
-  const barX = 60, barY = 100, barW = 960, barH = 94;
-  ctx.fillStyle = COR.tinta;
-  rRect(ctx, barX + 12, barY + 12, barW, barH, 20); ctx.fill();
-  ctx.fillStyle = "#8FC1F5";
-  rRect(ctx, barX, barY, barW, barH, 20); ctx.fill();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6;
-  rRect(ctx, barX, barY, barW, barH, 20); ctx.stroke();
-  /* conteúdo centralizado: [insta] @rainha 👑 [insta] @imperador */
-  const fBar = '700 30px "Space Grotesk"';
-  ctx.font = fBar;
-  const a1 = "@arainhadaspromocoes", a2 = "@imperadordaspromocoes";
-  const la1 = ctx.measureText(a1).width, la2 = ctx.measureText(a2).width;
-  const icone = 36, gapIc = 12, gapCo = 26, coroaL = 48;
-  const total = icone + gapIc + la1 + gapCo + coroaL + gapCo + icone + gapIc + la2;
-  let bx = ARTE_W/2 - total/2;
-  const bcy = barY + barH/2;
-  ctx.textBaseline = "middle";
-  ctx.lineJoin = "round";
-  desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
-  ctx.font = fBar;
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
-  ctx.strokeText(a1, bx, bcy + 2);
-  ctx.fillStyle = COR.amarelo;
-  ctx.fillText(a1, bx, bcy + 2); bx += la1 + gapCo;
-  ctx.font = "42px serif";
-  ctx.fillStyle = COR.tinta;
-  ctx.fillText("👑", bx, bcy + 2); bx += coroaL + gapCo;
-  desenharInsta(ctx, bx, bcy - icone/2, icone); bx += icone + gapIc;
-  ctx.font = fBar;
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
-  ctx.strokeText(a2, bx, bcy + 2);
-  ctx.fillStyle = COR.amarelo;
-  ctx.fillText(a2, bx, bcy + 2);
+  /* ---- cabeçalho G2: cápsulas creme + medalhão da coroa + Instagram colorido ---- */
+  const cy0 = 150, RMED = 88;
+  function pillArroba(x0, x1, v0, v1, txt){
+    const h = 74, py = cy0 - h/2;
+    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
+    rRect(ctx, x0, py, x1 - x0, h, 37); ctx.fillStyle = COR.papel; ctx.fill(); ctx.restore();
+    rRect(ctx, x0, py, x1 - x0, h, 37); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; ctx.stroke();
+    const ic = 32;
+    let f = 26;
+    ctx.font = '700 ' + f + 'px "Space Grotesk"';
+    const zona = (v1 - v0) - 36;
+    while (ic + 13 + ctx.measureText(txt).width > zona && f > 18){
+      f -= 1; ctx.font = '700 ' + f + 'px "Space Grotesk"';
+    }
+    const cw = ic + 13 + ctx.measureText(txt).width;
+    const x = (v0 + v1)/2 - cw/2;
+    desenharInsta(ctx, x, cy0 - ic/2, ic, gradInsta(ctx, x, cy0 - ic/2, ic));
+    ctx.fillStyle = COR.tinta;
+    ctx.textBaseline = "middle";
+    ctx.fillText(txt, x + ic + 13, cy0 + 2);
+  }
+  pillArroba(60, 560, 60, ARTE_W/2 - RMED - 8, "@arainhadaspromocoes");
+  pillArroba(520, 1020, ARTE_W/2 + RMED + 8, 1020, "@imperadordaspromocoes");
+  /* medalhão central com a coroa */
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
+  ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED, 0, Math.PI*2); ctx.fillStyle = COR.tinta; ctx.fill(); ctx.restore();
+  ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED, 0, Math.PI*2); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 8; ctx.stroke();
+  ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED - 15, 0, Math.PI*2); ctx.setLineDash([3, 8]); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 4;
+  ctx.font = "80px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("👑", ARTE_W/2, cy0 - 3); ctx.restore();
+  ctx.textAlign = "left";
 
   /* ---- produtos ---- */
   const prods = (story.produtos || []).slice(0, 2);
