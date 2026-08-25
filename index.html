@@ -755,6 +755,127 @@ async function desenharArteZap(story, canvas){
   });
 }
 
+async function desenharArteZapInfo(story, canvas){
+  try { await document.fonts.load('700 52px "Open Sans"'); } catch(e){}
+  const ZW = 1080, ZH = 1080;
+  canvas.width = ZW; canvas.height = ZH;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = COR.azul; ctx.fillRect(0, 0, ZW, ZH);
+  ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 2;
+  for (let gx = 0; gx <= ZW; gx += 54){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ZH); ctx.stroke(); }
+  for (let gy = 0; gy <= ZH; gy += 54){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ZW, gy); ctx.stroke(); }
+
+  const prods = (story.produtos || []).slice(0, 2);
+  const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
+  const jw = 492, gap = 24, jh = 900;
+  const x0 = prods.length === 1 ? ZW/2 - jw/2 : ZW/2 - (jw*2 + gap)/2;
+  const jy = ZH/2 - jh/2;
+
+  prods.forEach(function(p, i){
+    const jx = x0 + i * (jw + gap);
+    const AB = 52;
+    ctx.save();
+    ctx.fillStyle = COR.tinta; rRect(ctx, jx + 10, jy + 10, jw, jh, 20); ctx.fill();
+    ctx.fillStyle = COR.papel; rRect(ctx, jx, jy, jw, jh, 20); ctx.fill();
+    ctx.save(); rRect(ctx, jx, jy, jw, jh, 20); ctx.clip();
+    ctx.fillStyle = i % 2 ? COR.verde : COR.amarelo;
+    ctx.fillRect(jx, jy, jw, AB);
+    ctx.restore();
+    ctx.beginPath(); ctx.moveTo(jx, jy + AB); ctx.lineTo(jx + jw, jy + AB);
+    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; ctx.stroke();
+    rRect(ctx, jx, jy, jw, jh, 20); ctx.stroke();
+    ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
+    ctx.font = '700 27px "Open Sans"';
+    ctx.fillText("Promoção " + (i + 1), jx + 24, jy + AB/2 + 2);
+    ctx.font = '600 20px "Open Sans"'; ctx.textAlign = "right"; ctx.globalAlpha = .55;
+    ctx.fillText("anúncio", jx + jw - 20, jy + AB/2 + 2);
+    ctx.globalAlpha = 1; ctx.textAlign = "left";
+    ctx.restore();
+
+    const fl = 330;
+    const fx = jx + (jw - fl)/2, fy2 = jy + AB + 30;
+    const img = imgs[i];
+    ctx.save();
+    ctx.fillStyle = COR.tinta; rRect(ctx, fx + 8, fy2 + 8, fl, fl, 16); ctx.fill();
+    ctx.fillStyle = "#FFFFFF"; rRect(ctx, fx, fy2, fl, fl, 16); ctx.fill();
+    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; rRect(ctx, fx, fy2, fl, fl, 16); ctx.stroke();
+    ctx.clip();
+    if (img){
+      const m = 12;
+      const fator = Math.min((fl - m*2)/img.width, (fl - m*2)/img.height);
+      const w = img.width * fator, h = img.height * fator;
+      ctx.drawImage(img, fx + (fl - w)/2, fy2 + (fl - h)/2, w, h);
+    }
+    ctx.restore();
+
+    const txtX = jx + 30, txtLarg = jw - 60;
+    let y = fy2 + fl + 58;
+    ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = COR.tinta;
+    ctx.font = '700 27px "Open Sans"';
+    const linhas = quebrarLinhas(ctx, p.nome, txtLarg, 2);
+    linhas.forEach(function(l){ ctx.fillText(l, txtX, y); y += 36; });
+    if (linhas.length === 1) y += 36;
+
+    if (String(p.preco || "").trim()){
+      y += 34;
+      ctx.fillStyle = COR.azul;
+      let f = 52; ctx.font = '700 ' + f + 'px "Open Sans"';
+      const ptxt = precoBonito(p.preco);
+      while (ctx.measureText(ptxt).width > txtLarg && f > 30){ f -= 2; ctx.font = '700 ' + f + 'px "Open Sans"'; }
+      ctx.fillText(ptxt, txtX, y);
+    }
+    if (String(p.parcelas || "").trim()){
+      y += 34;
+      ctx.fillStyle = "#4a4a55"; ctx.font = '600 22px "Open Sans"';
+      ctx.fillText(quebrarLinhas(ctx, p.parcelas, txtLarg, 1)[0] || "", txtX, y);
+    }
+    if (String(p.tamanho || "").trim()){
+      y += 26;
+      const tT = "📏 Tamanho: " + p.tamanho;
+      let fT = 22; ctx.font = '700 ' + fT + 'px "Open Sans"';
+      while (ctx.measureText(tT).width + 30 > txtLarg && fT > 15){ fT -= 1; ctx.font = '700 ' + fT + 'px "Open Sans"'; }
+      const lT = Math.min(txtLarg, ctx.measureText(tT).width + 30), aT = fT + 20;
+      ctx.fillStyle = COR.lilas; rRect(ctx, txtX, y - 6, lT, aT, 12); ctx.fill();
+      ctx.strokeStyle = COR.tinta; ctx.lineWidth = 4; rRect(ctx, txtX, y - 6, lT, aT, 12); ctx.stroke();
+      ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
+      ctx.fillText(tT, txtX + 15, y - 6 + aT/2 + 1);
+      ctx.textBaseline = "alphabetic";
+      y += aT;
+    }
+    if (String(p.cupom || "").trim()){
+      y += 24;
+      const tC = "🎟️ Cupom: " + String(p.cupom).toUpperCase();
+      let fC = 22; ctx.font = '700 ' + fC + 'px "Open Sans"';
+      while (ctx.measureText(tC).width + 34 > txtLarg && fC > 15){ fC -= 1; ctx.font = '700 ' + fC + 'px "Open Sans"'; }
+      const lC = Math.min(txtLarg, ctx.measureText(tC).width + 34), aC = fC + 22;
+      ctx.fillStyle = COR.amarelo; rRect(ctx, txtX, y - 6, lC, aC, 12); ctx.fill();
+      ctx.strokeStyle = COR.tinta; ctx.lineWidth = 4; ctx.setLineDash([10, 8]);
+      rRect(ctx, txtX, y - 6, lC, aC, 12); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
+      ctx.fillText(tC, txtX + 17, y - 6 + aC/2 + 1);
+      ctx.textBaseline = "alphabetic";
+    }
+  });
+}
+
+function baixarArteZapInfo(id){
+  const s = (stories || []).find(function(x){ return x.id === id; });
+  if (!s) return;
+  const c = document.createElement("canvas");
+  desenharArteZapInfo(s, c).then(function(){
+    c.toBlob(function(blob){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "whatsapp-info-" + id + ".png";
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      toast("Arte do WhatsApp (com informações) baixada! 💬");
+    }, "image/png");
+  });
+}
+
 function baixarArteZap(id){
   const s = (stories || []).find(function(x){ return x.id === id; });
   if (!s) return;
@@ -1101,9 +1222,12 @@ function telaAdmin(app){
             <button class="btn btn-verde btn-mini" onclick="copiar(linkDaPagina('${esc(arteAberta.id)}'), 'Link copiado! 🔗')">Copiar</button>
           </div>
           <button class="btn btn-amarelo btn-bloco" onclick="baixarArte('${esc(arteAberta.id)}')">⬇️ Baixar arte do story (PNG)</button>
-          <div style="font-weight:700;font-size:13px;margin:16px 0 8px">💬 Arte pro WhatsApp (quadrada)</div>
+          <div style="font-weight:700;font-size:13px;margin:16px 0 8px">💬 Arte pro WhatsApp — só as fotos</div>
           <canvas id="canvas-zap" style="background:#0e1c3f"></canvas>
-          <button class="btn btn-verde btn-bloco" style="margin-top:10px" onclick="baixarArteZap('${esc(arteAberta.id)}')">⬇️ Baixar arte do WhatsApp (PNG)</button>
+          <button class="btn btn-verde btn-bloco" style="margin-top:10px" onclick="baixarArteZap('${esc(arteAberta.id)}')">⬇️ Baixar — só as fotos (PNG)</button>
+          <div style="font-weight:700;font-size:13px;margin:16px 0 8px">💬 Arte pro WhatsApp — com as informações</div>
+          <canvas id="canvas-zap-info" style="background:#0e1c3f"></canvas>
+          <button class="btn btn-verde btn-bloco" style="margin-top:10px" onclick="baixarArteZapInfo('${esc(arteAberta.id)}')">⬇️ Baixar — com as informações (PNG)</button>
           <button class="btn btn-mini" style="margin-top:10px" onclick="fecharArte()">Fechar</button>
         </div>
       </div>` : ""}
@@ -1147,6 +1271,8 @@ function telaAdmin(app){
     if (cv) desenharArte(arteAberta, cv);
     const cz = document.getElementById("canvas-zap");
     if (cz) desenharArteZap(arteAberta, cz);
+    const czi = document.getElementById("canvas-zap-info");
+    if (czi) desenharArteZapInfo(arteAberta, czi);
   }
 }
 
