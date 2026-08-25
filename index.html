@@ -81,26 +81,34 @@
   .btn-mini{padding:7px 11px;font-size:12.5px;box-shadow:var(--sombra-p)}
   .btn-mini:active{transform:translate(2px,2px);box-shadow:none}
 
-  /* Card de produto na página pública */
+  /* Card de produto na página pública (compacto: os 2 na mesma tela) */
   .card-prod{
     background:#fff;border:var(--borda);border-radius:var(--raio);
-    box-shadow:var(--sombra-m);overflow:hidden;margin-bottom:18px;
+    box-shadow:var(--sombra-m);overflow:hidden;margin-bottom:14px;
   }
-  .card-prod .foto{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff;display:block;border-bottom:var(--borda)}
-  .card-prod .info{padding:14px 14px 16px}
-  .card-prod .nome{font-size:16.5px;font-weight:700;line-height:1.35;margin-bottom:8px}
-  .card-prod .preco{font-size:26px;font-weight:700;color:var(--azul);line-height:1.1}
-  .card-prod .parcelas{font-size:13.5px;font-weight:600;opacity:.75;margin-top:2px}
+  .card-prod .linha{display:flex;gap:12px;padding:12px 12px 4px;align-items:flex-start}
+  .card-prod .foto{
+    width:112px;height:112px;object-fit:contain;background:#fff;flex-shrink:0;
+    border:2.4px solid var(--tinta);border-radius:10px;
+  }
+  .card-prod .info{flex:1;min-width:0;padding:0}
+  .card-prod .rodape-card{padding:4px 12px 12px}
+  .card-prod .nome{
+    font-size:14px;font-weight:700;line-height:1.3;margin-bottom:5px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .card-prod .preco{font-size:22px;font-weight:700;color:var(--azul);line-height:1.1}
+  .card-prod .parcelas{font-size:12.5px;font-weight:600;opacity:.75;margin-top:2px}
   .caixa-cupom{
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     border:2.4px dashed var(--tinta);border-radius:10px;background:#FFFDF2;
-    padding:7px 8px 7px 12px;margin-top:11px;
+    padding:5px 6px 5px 10px;margin-top:8px;
   }
-  .codigo-cupom{font-weight:700;font-size:16px;letter-spacing:1px;word-break:break-all}
+  .codigo-cupom{font-weight:700;font-size:14px;letter-spacing:1px;word-break:break-all}
   .selo-tamanho{
-    display:inline-block;background:var(--lilas);border:2.4px solid var(--tinta);
-    border-radius:10px;box-shadow:var(--sombra-p);font-weight:700;font-size:13.5px;
-    padding:6px 12px;margin-top:11px;
+    display:inline-block;background:var(--lilas);border:2px solid var(--tinta);
+    border-radius:8px;font-weight:700;font-size:12px;
+    padding:3px 9px;margin-top:6px;
   }
 
   .vazio{text-align:center;padding:36px 20px;font-size:14.5px;font-weight:500}
@@ -517,7 +525,7 @@ async function desenharArte(story, canvas){
   ctx.font = fBar;
   ctx.strokeStyle = COR.tinta; ctx.lineWidth = 7;
   ctx.strokeText(a2, bx, bcy + 2);
-  ctx.fillStyle = COR.amarelo;
+  ctx.fillStyle = "#FFFFFF";
   ctx.fillText(a2, bx, bcy + 2);
 
   /* ---- produtos ---- */
@@ -714,18 +722,22 @@ function telaStory(app, id){
     return `
     <div class="card-prod">
       <div class="barra ${i % 2 ? "barra-verde" : "barra-amarela"}"><span>🛍️ Promoção ${i+1}</span>${controles()}</div>
-      ${p.img ? `<img class="foto" src="${esc(p.img)}" alt="${esc(p.nome)}">` : ""}
-      <div class="info">
-        <div class="nome">${esc(p.nome)}</div>
-        ${p.preco ? `<div class="preco">${esc(precoBonito(p.preco))}</div>` : ""}
-        ${p.parcelas ? `<div class="parcelas">${esc(p.parcelas)}</div>` : ""}
-        ${p.tamanho ? `<div class="selo-tamanho">📏 Tamanho: ${esc(p.tamanho)}</div>` : ""}
+      <div class="linha">
+        ${p.img ? `<img class="foto" src="${esc(p.img)}" alt="${esc(p.nome)}">` : ""}
+        <div class="info">
+          <div class="nome">${esc(p.nome)}</div>
+          ${p.preco ? `<div class="preco">${esc(precoBonito(p.preco))}</div>` : ""}
+          ${p.parcelas ? `<div class="parcelas">${esc(p.parcelas)}</div>` : ""}
+          ${p.tamanho ? `<div class="selo-tamanho">📏 Tamanho: ${esc(p.tamanho)}</div>` : ""}
+        </div>
+      </div>
+      <div class="rodape-card">
         ${cupom ? `
         <div class="caixa-cupom">
           <span class="codigo-cupom">${esc(cupom.toUpperCase())}</span>
           <button class="btn btn-verde btn-mini" onclick="copiarEAbrir('${esc(cupom.toUpperCase())}', '${esc(p.link || "")}')">Copiar cupom</button>
         </div>` : ""}
-        ${p.link ? `<a class="btn btn-lilas btn-bloco" style="margin-top:12px" href="${esc(p.link)}" target="_blank" rel="noopener">🛒 PEGAR PROMOÇÃO ↗</a>` : ""}
+        ${p.link ? `<a class="btn btn-lilas btn-bloco" style="margin-top:8px;padding:9px 14px" href="${esc(p.link)}" target="_blank" rel="noopener">🛒 PEGAR PROMOÇÃO ↗</a>` : ""}
       </div>
     </div>`;
   }).join("");
@@ -734,9 +746,9 @@ function telaStory(app, id){
     <div class="container">
       <div class="janela">
         <div class="barra barra-lilas"><span>👑🤴 Promoções do story</span>${controles()}</div>
-        <div class="corpo" style="padding:20px 16px;text-align:center">
-          <div class="hero-titulo">📣 CORRE QUE TÁ VALENDO</div>
-          <div class="hero-sub">As 2 promoções do story, com link direto. Toca e garante! 👇</div>
+        <div class="corpo" style="padding:12px 14px;text-align:center">
+          <div class="hero-titulo" style="font-size:21px">📣 CORRE QUE TÁ VALENDO</div>
+          <div class="hero-sub" style="margin-top:4px;font-size:13px">As 2 promoções do story, com link direto 👇</div>
         </div>
       </div>
       ${cards || `<div class="janela"><div class="vazio"><div class="emoji">📦</div>Os produtos aparecem aqui daqui a pouco!</div></div>`}
