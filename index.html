@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -731,6 +732,97 @@ function baixarArte(id){
   });
 }
 
+/* ============ TEMPLATE DO DIVULGADOR INTELIGENTE (1080x1920) ============ */
+async function desenharTemplateDivulgador(canvas){
+  try { await document.fonts.load('700 26px "Open Sans"'); } catch(e){}
+  try { await document.fonts.load('800 50px "Open Sans"'); } catch(e){}
+  const TW = 1080, TH = 1920;
+  canvas.width = TW; canvas.height = TH;
+  const ctx = canvas.getContext("2d");
+
+  /* fundo azul quadriculado */
+  ctx.fillStyle = COR.azul; ctx.fillRect(0, 0, TW, TH);
+  ctx.strokeStyle = "rgba(255,255,255,.09)"; ctx.lineWidth = 2;
+  for (let gx = 0; gx <= TW; gx += 54){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, TH); ctx.stroke(); }
+  for (let gy = 0; gy <= TH; gy += 54){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(TW, gy); ctx.stroke(); }
+
+  /* cabeçalho G2 (Open Sans nos arrobas) */
+  const cy0 = 128, RM = 84;
+  function pillT(x0, x1, v0, v1, txt){
+    const h = 72, py = cy0 - h/2;
+    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
+    rRect(ctx, x0, py, x1-x0, h, 36); ctx.fillStyle = COR.papel; ctx.fill(); ctx.restore();
+    rRect(ctx, x0, py, x1-x0, h, 36); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; ctx.stroke();
+    const ic = 31;
+    let f = 25;
+    ctx.font = '700 ' + f + 'px "Open Sans"';
+    const zona = (v1 - v0) - 34;
+    while (ic + 12 + ctx.measureText(txt).width > zona && f > 17){ f--; ctx.font = '700 ' + f + 'px "Open Sans"'; }
+    const cw = ic + 12 + ctx.measureText(txt).width;
+    const x = (v0 + v1)/2 - cw/2;
+    desenharInsta(ctx, x, cy0 - ic/2, ic, gradInsta(ctx, x, cy0 - ic/2, ic));
+    ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
+    ctx.fillText(txt, x + ic + 12, cy0 + 2);
+  }
+  pillT(56, 556, 56, TW/2 - RM - 8, "@arainhadaspromocoes");
+  pillT(524, 1024, TW/2 + RM + 8, 1024, "@imperadordaspromocoes");
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
+  ctx.beginPath(); ctx.arc(TW/2, cy0, RM, 0, Math.PI*2); ctx.fillStyle = COR.tinta; ctx.fill(); ctx.restore();
+  ctx.beginPath(); ctx.arc(TW/2, cy0, RM, 0, Math.PI*2); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 8; ctx.stroke();
+  ctx.beginPath(); ctx.arc(TW/2, cy0, RM - 14, 0, Math.PI*2); ctx.setLineDash([3, 8]); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 4;
+  ctx.font = "76px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("👑", TW/2, cy0 - 3); ctx.restore();
+  ctx.textAlign = "left";
+
+  /* janela branca onde o carimbo do programa entra */
+  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 12; ctx.shadowOffsetY = 12;
+  rRect(ctx, 44, 300, 992, 1252, 22); ctx.fillStyle = "#FFFFFF"; ctx.fill(); ctx.restore();
+  rRect(ctx, 44, 300, 992, 1252, 22); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; ctx.stroke();
+
+  /* #anúncio no cantinho inferior esquerdo da janela */
+  ctx.font = '700 30px "Open Sans"';
+  ctx.fillStyle = COR.azul;
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
+  ctx.fillText("#anúncio", 80, 1512);
+
+  /* mãozinhas centralizadas entre a janela e o botão */
+  const stickY = 1628;
+  ctx.textBaseline = "middle";
+  ctx.font = "86px serif";
+  ctx.fillText("👉", 60, stickY);
+  ctx.fillText("👈", TW - 150, stickY);
+
+  /* botão (Open Sans) */
+  const rodY = 1692, rodH = 104;
+  ctx.font = '800 50px "Open Sans"';
+  const rodT = "CLIQUE NO LINK ACIMA";
+  const rodL = ctx.measureText(rodT).width + 120;
+  const rodX = TW/2 - rodL/2;
+  ctx.fillStyle = COR.tinta; rRect(ctx, rodX + 10, rodY + 10, rodL, rodH, 22); ctx.fill();
+  ctx.fillStyle = COR.amarelo; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.fill();
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.stroke();
+  ctx.fillStyle = COR.tinta;
+  ctx.font = '800 50px "Open Sans"';
+  ctx.textAlign = "center";
+  ctx.fillText(rodT, TW/2, rodY + rodH/2 + 4);
+  ctx.textAlign = "left";
+}
+
+function baixarTemplateDivulgador(){
+  const c = document.createElement("canvas");
+  desenharTemplateDivulgador(c).then(function(){
+    c.toBlob(function(blob){
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "template-divulgador.png";
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      toast("Template baixado! 🖼️");
+    }, "image/png");
+  });
+}
+
 /* ================= ROTEADOR ================= */
 function rota(){
   const app = document.getElementById("app");
@@ -963,6 +1055,14 @@ function telaAdmin(app){
       <div class="painel-secao">
         <div class="conteudo">
           <button class="btn btn-amarelo btn-bloco" onclick="salvarStory()">${editandoId ? "💾 Salvar alterações e gerar arte" : "🚀 Criar duo e gerar arte"}</button>
+        </div>
+      </div>
+
+      <div class="painel-secao">
+        <div class="barra barra-lilas"><span>🖼️ Template do Divulgador</span>${controles()}</div>
+        <div class="conteudo">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Gera o template com a identidade da dupla pra importar no Divulgador Inteligente.</div>
+          <button class="btn btn-mini btn-lilas" onclick="baixarTemplateDivulgador()">⬇️ Baixar template (PNG)</button>
         </div>
       </div>
 
