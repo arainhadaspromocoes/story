@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Story Duplo 👑🤴 | Achadinhos em Dupla</title>
+<title>Story Duplo 👑🤴 | Promoções em Dupla</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -398,7 +398,7 @@ function rRect(ctx, x, y, w, h, r){
 }
 
 /* janela estilo retrô: sombra dura + corpo papel + barra colorida com ○ — ✕ */
-function desenharJanela(ctx, x, y, w, h, corBarra, titulo, alturaBarra){
+function desenharJanela(ctx, x, y, w, h, corBarra, titulo, alturaBarra, rotuloDireita){
   const AB = alturaBarra || 62;
   ctx.save();
   ctx.fillStyle = COR.tinta;
@@ -418,11 +418,14 @@ function desenharJanela(ctx, x, y, w, h, corBarra, titulo, alturaBarra){
   ctx.textBaseline = "middle";
   ctx.font = '700 30px "Space Grotesk"';
   ctx.fillText(String(titulo || "").toUpperCase(), x + 26, y + AB/2 + 2);
-  ctx.textAlign = "right";
-  ctx.globalAlpha = .85;
-  ctx.fillText("○  —  ✕", x + w - 26, y + AB/2 + 2);
-  ctx.globalAlpha = 1;
-  ctx.textAlign = "left";
+  if (rotuloDireita){
+    ctx.font = '600 23px "Space Grotesk"';
+    ctx.textAlign = "right";
+    ctx.globalAlpha = .55;
+    ctx.fillText(rotuloDireita, x + w - 24, y + AB/2 + 2);
+    ctx.globalAlpha = 1;
+    ctx.textAlign = "left";
+  }
   ctx.restore();
   return { cx: x, cy: y + AB, cw: w, ch: h - AB };
 }
@@ -442,27 +445,48 @@ function desenharFundo(ctx){
   ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
   ctx.textBaseline = "middle";
   ctx.font = "44px serif";
-  ctx.fillText("✨", 30, 366);
-  ctx.fillText("💫", 995, 386);
-  ctx.font = "38px serif";
-  ctx.fillText("⭐", 14, 1560);
-  ctx.fillText("✨", 1028, 1560);
+  ctx.fillText("✨", 28, 56);
+  ctx.fillText("💫", 1000, 56);
+  ctx.font = "36px serif";
+  ctx.fillText("⭐", 16, 1660);
+  ctx.fillText("✨", 1030, 1660);
   ctx.restore();
 }
 
-function chipTexto(ctx, texto, cx, y, alturaChip, fonte){
+function desenharInsta(ctx, x, y, s){
+  /* símbolo do Instagram: quadrado arredondado + lente + pontinho */
+  ctx.save();
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = Math.max(2.5, s * .09); ctx.lineCap = "round";
+  rRect(ctx, x, y, s, s, s * .3); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + s/2, y + s/2, s * .22, 0, Math.PI * 2); ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(x + s * .74, y + s * .26, s * .06, 0, Math.PI * 2);
+  ctx.fillStyle = COR.tinta; ctx.fill();
+  ctx.restore();
+}
+
+function chipInsta(ctx, arroba, x, y, alturaChip, fonte){
   ctx.font = fonte;
-  const larg = ctx.measureText(texto).width + 44;
-  const x = cx - larg/2;
+  const icone = alturaChip * .52;
+  const larg = ctx.measureText(arroba).width + icone + 52;
   ctx.fillStyle = COR.tinta;
   rRect(ctx, x + 6, y + 6, larg, alturaChip, 14); ctx.fill();
   ctx.fillStyle = COR.papel;
   rRect(ctx, x, y, larg, alturaChip, 14); ctx.fill();
   ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5;
   rRect(ctx, x, y, larg, alturaChip, 14); ctx.stroke();
+  desenharInsta(ctx, x + 18, y + (alturaChip - icone)/2, icone);
   ctx.fillStyle = COR.tinta;
   ctx.textBaseline = "middle";
-  ctx.fillText(texto, x + 22, y + alturaChip/2 + 2);
+  ctx.font = fonte;
+  ctx.fillText(arroba, x + icone + 32, y + alturaChip/2 + 2);
+  return larg;
+}
+
+function medirChipInsta(ctx, arroba, alturaChip, fonte){
+  ctx.font = fonte;
+  return ctx.measureText(arroba).width + alturaChip * .52 + 52;
 }
 
 async function desenharArte(story, canvas){
@@ -472,58 +496,53 @@ async function desenharArte(story, canvas){
   const ctx = canvas.getContext("2d");
   desenharFundo(ctx);
 
-  /* ---- cabeçalho com os dois @ ---- */
-  const cab = desenharJanela(ctx, 60, 56, 960, 240, COR.lilas, "👑🤴 Achadinhos em Dupla");
-  chipTexto(ctx, "📸 @arainhadaspromocoes", ARTE_W/2, cab.cy + 20, 62, '700 31px "Space Grotesk"');
-  chipTexto(ctx, "📸 @imperadordaspromocoes", ARTE_W/2, cab.cy + 98, 62, '700 31px "Space Grotesk"');
-
-  /* ---- selo #anúncio ---- */
-  ctx.font = '700 34px "Space Grotesk"';
-  ctx.textBaseline = "middle";
-  const selo = "📢 #anúncio";
-  const seloL = ctx.measureText(selo).width + 48;
-  const seloX = ARTE_W/2 - seloL/2, seloY = 348;
-  ctx.fillStyle = COR.tinta; rRect(ctx, seloX + 6, seloY + 6, seloL, 62, 14); ctx.fill();
-  ctx.fillStyle = COR.amarelo; rRect(ctx, seloX, seloY, seloL, 62, 14); ctx.fill();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; rRect(ctx, seloX, seloY, seloL, 62, 14); ctx.stroke();
-  ctx.fillStyle = COR.tinta;
-  ctx.font = '700 34px "Space Grotesk"';
-  ctx.fillText(selo, seloX + 24, seloY + 32);
+  /* ---- cabeçalho com os dois @ lado a lado ---- */
+  const cab = desenharJanela(ctx, 60, 100, 960, 178, "#8FC1F5", "👑🤴 A Rainha & O Imperador das Promoções");
+  const fChip = '700 27px "Space Grotesk"';
+  const alturaChip = 60;
+  const w1 = medirChipInsta(ctx, "@arainhadaspromocoes", alturaChip, fChip);
+  const w2 = medirChipInsta(ctx, "@imperadordaspromocoes", alturaChip, fChip);
+  const gap = 24;
+  let cx0 = ARTE_W/2 - (w1 + gap + w2)/2;
+  const chipY = cab.cy + Math.floor((cab.ch - alturaChip)/2) - 4;
+  cx0 += chipInsta(ctx, "@arainhadaspromocoes", cx0, chipY, alturaChip, fChip) + gap;
+  chipInsta(ctx, "@imperadordaspromocoes", cx0, chipY, alturaChip, fChip);
 
   /* ---- produtos ---- */
   const prods = (story.produtos || []).slice(0, 2);
   const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
-  const topo = 452, altura = 538, folga = 38;
+  const topo = 316, altura = 535, folga = 34;
   prods.forEach(function(p, i){
     const y = prods.length === 1 ? topo + 200 : topo + i * (altura + folga);
     const jan = desenharJanela(ctx, 60, y, 960, altura,
-      i % 2 ? COR.verde : COR.amarelo, "🛍️ Achadinho " + (i + 1), 56);
+      i % 2 ? COR.verde : COR.amarelo, "Promoção " + (i + 1), 56, "anúncio");
     desenharProduto(ctx, p, imgs[i], jan);
   });
 
-  /* ---- rodapé: clique no link acima ---- */
-  const rodY = 1772, rodH = 108;
-  ctx.font = '700 52px "Space Grotesk"';
+  /* ---- rodapé: espaço do link entre as setas + chamada sem cara de botão ---- */
   ctx.textBaseline = "middle";
-  const rodT = "CLIQUE NO LINK ACIMA";
-  const rodL = ctx.measureText(rodT).width + 160;
-  const rodX = ARTE_W/2 - rodL/2;
-  ctx.fillStyle = COR.tinta; rRect(ctx, rodX + 10, rodY + 10, rodL, rodH, 22); ctx.fill();
-  ctx.fillStyle = COR.amarelo; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.fill();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.stroke();
-  ctx.fillStyle = COR.tinta;
-  ctx.font = '700 52px "Space Grotesk"';
-  ctx.fillText("👆", rodX + 34, rodY + rodH/2 + 4);
-  ctx.fillText(rodT, rodX + 108, rodY + rodH/2 + 4);
-  ctx.font = "76px serif";
-  ctx.fillText("⬆️", 30, rodY - 84);
-  ctx.fillText("⬆️", ARTE_W - 112, rodY - 84);
+  ctx.font = "88px serif";
+  ctx.fillText("👉", 44, 1505);
+  ctx.fillText("👈", ARTE_W - 140, 1505);
+  ctx.textAlign = "center";
+  ctx.lineJoin = "round";
+  ctx.font = '700 58px "Space Grotesk"';
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 12;
+  ctx.strokeText("CLIQUE NO LINK ACIMA", ARTE_W/2, 1602);
+  ctx.fillStyle = COR.amarelo;
+  ctx.fillText("CLIQUE NO LINK ACIMA", ARTE_W/2, 1602);
+  ctx.font = '700 32px "Space Grotesk"';
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 8;
+  ctx.strokeText("toca nele que a promoção abre na hora 🛒", ARTE_W/2, 1660);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillText("toca nele que a promoção abre na hora 🛒", ARTE_W/2, 1660);
+  ctx.textAlign = "left";
 }
 
 function desenharProduto(ctx, p, img, jan){
   const pad = 34;
   const temFoto = !!img;
-  const fotoLado = 360;
+  const fotoLado = 400;
   const fotoX = jan.cx + pad + 6;
   const fotoY = jan.cy + Math.floor((jan.ch - fotoLado) / 2) - 6;
   const txtX = temFoto ? fotoX + fotoLado + 40 : jan.cx + pad + 10;
@@ -631,7 +650,7 @@ function rodapePadrao(){
     <div class="rodape">
       <a class="chip" href="https://instagram.com/arainhadaspromocoes" target="_blank" rel="noopener"><svg class="icone-insta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.8" cy="6.2" r="1.4" fill="currentColor" stroke="none"/></svg> @arainhadaspromocoes</a>
       <a class="chip" href="https://instagram.com/imperadordaspromocoes" target="_blank" rel="noopener"><svg class="icone-insta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2.5" y="2.5" width="19" height="19" rx="5.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.8" cy="6.2" r="1.4" fill="currentColor" stroke="none"/></svg> @imperadordaspromocoes</a>
-      <div style="margin-top:8px">Achadinhos em dupla 👑🤴 · <a href="#/admin" title="Painel de edição">🔐</a></div>
+      <div style="margin-top:8px">Promoções em dupla 👑🤴 · <a href="#/admin" title="Painel de edição">🔐</a></div>
     </div>`;
 }
 
@@ -639,22 +658,22 @@ function rodapePadrao(){
 function telaStory(app, id){
   if (stories === null){
     app.innerHTML = `<div class="container">
-      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Achadinhos</span>${controles()}</div>
-      <div class="vazio"><div class="emoji">⏳</div>Carregando os achadinhos...</div></div></div>`;
+      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Promoções</span>${controles()}</div>
+      <div class="vazio"><div class="emoji">⏳</div>Carregando as promoções...</div></div></div>`;
     return;
   }
   const s = stories.find(function(x){ return x.id === id; });
   if (!s){
     app.innerHTML = `<div class="container">
       <div class="janela"><div class="barra barra-rosa"><span>😢 Ops</span>${controles()}</div>
-      <div class="vazio"><div class="emoji">🔍</div>Não achei esses achadinhos.<br>Confere o link!</div></div></div>` + rodapePadrao();
+      <div class="vazio"><div class="emoji">🔍</div>Não achei essas promoções.<br>Confere o link!</div></div></div>` + rodapePadrao();
     return;
   }
   const cards = (s.produtos || []).map(function(p, i){
     const cupom = String(p.cupom || "").trim();
     return `
     <div class="card-prod">
-      <div class="barra ${i % 2 ? "barra-verde" : "barra-amarela"}"><span>🛍️ Achadinho ${i+1}</span>${controles()}</div>
+      <div class="barra ${i % 2 ? "barra-verde" : "barra-amarela"}"><span>🛍️ Promoção ${i+1}</span>${controles()}</div>
       ${p.img ? `<img class="foto" src="${esc(p.img)}" alt="${esc(p.nome)}">` : ""}
       <div class="info">
         <div class="nome">${esc(p.nome)}</div>
@@ -673,10 +692,10 @@ function telaStory(app, id){
   app.innerHTML = `
     <div class="container">
       <div class="janela">
-        <div class="barra barra-lilas"><span>👑🤴 Achadinhos do story</span>${controles()}</div>
+        <div class="barra barra-lilas"><span>👑🤴 Promoções do story</span>${controles()}</div>
         <div class="corpo" style="padding:20px 16px;text-align:center">
           <div class="hero-titulo">📣 CORRE QUE TÁ VALENDO</div>
-          <div class="hero-sub">Os 2 achadinhos do story, com link direto. Toca e garante! 👇</div>
+          <div class="hero-sub">As 2 promoções do story, com link direto. Toca e garante! 👇</div>
         </div>
       </div>
       ${cards || `<div class="janela"><div class="vazio"><div class="emoji">📦</div>Os produtos aparecem aqui daqui a pouco!</div></div>`}
@@ -687,7 +706,7 @@ function telaStory(app, id){
 function telaLista(app){
   if (stories === null){
     app.innerHTML = `<div class="container">
-      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Achadinhos</span>${controles()}</div>
+      <div class="janela"><div class="barra barra-amarela"><span>👑🤴 Promoções</span>${controles()}</div>
       <div class="vazio"><div class="emoji">⏳</div>Carregando...</div></div></div>`;
     return;
   }
@@ -704,12 +723,12 @@ function telaLista(app){
       <div class="janela">
         <div class="barra barra-lilas"><span>👑🤴 Achadinhos em dupla</span>${controles()}</div>
         <div class="corpo" style="padding:20px 16px;text-align:center">
-          <div class="hero-titulo">ACHADINHOS DO STORY</div>
+          <div class="hero-titulo">PROMOÇÕES DO STORY</div>
           <div class="hero-sub">Os duos que já passaram pelos stories. Toca pra ver! 👇</div>
         </div>
       </div>
       <div class="janela"><div class="corpo">
-        ${itens || `<div class="vazio"><div class="emoji">📦</div>Ainda não tem achadinhos por aqui!</div>`}
+        ${itens || `<div class="vazio"><div class="emoji">📦</div>Ainda não tem promoções por aqui!</div>`}
       </div></div>
     </div>` + rodapePadrao();
 }
@@ -732,7 +751,7 @@ function telaAdmin(app){
         <div class="janela"><div class="barra barra-rosa"><span>🔐 Painel do Story Duplo</span>${controles()}</div>
         <div class="corpo" style="text-align:center;padding:26px 18px">
           <div class="cadeado">👑🤴</div>
-          <p style="font-size:14px;margin-bottom:16px">Entra com a conta Google<br>pra montar os achadinhos.</p>
+          <p style="font-size:14px;margin-bottom:16px">Entra com a conta Google<br>pra montar as promoções.</p>
           <button class="btn btn-amarelo btn-bloco" onclick="entrarGoogle()">Entrar com Google</button>
           <p style="margin-top:14px"><a href="#/" style="font-size:13px;text-decoration:underline">← Voltar</a></p>
         </div></div>
@@ -812,7 +831,7 @@ function telaAdmin(app){
       <div class="janela">
         <div class="barra barra-lilas"><span>👑🤴 Painel do Story Duplo</span>${controles()}</div>
         <div class="corpo" style="text-align:center;padding:16px">
-          <div style="font-size:14px;font-weight:600">Oi, ${esc((usuario.displayName || usuario.email).split(" ")[0])}! ${editandoId ? "Editando um duo. ✏️" : "Cadastra os 2 achadinhos 👇"}</div>
+          <div style="font-size:14px;font-weight:600">Oi, ${esc((usuario.displayName || usuario.email).split(" ")[0])}! ${editandoId ? "Editando um duo. ✏️" : "Cadastra as 2 promoções 👇"}</div>
           <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
             <a class="btn btn-mini" href="#/">👀 Ver o site</a>
             <button class="btn btn-mini" onclick="sairGoogle()">Sair</button>
