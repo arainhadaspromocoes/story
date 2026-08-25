@@ -788,15 +788,15 @@ async function desenharTemplateDivulgador(canvas){
   ctx.fillText("#anúncio", 1000, 1512);
   ctx.textAlign = "left";
 
-  /* mãozinhas centralizadas entre a janela e o botão */
-  const stickY = 1628;
+  /* mãozinhas centralizadas entre a janela e o botão (mais sobra pro sticker) */
+  const stickY = 1648;
   ctx.textBaseline = "middle";
   ctx.font = "86px serif";
   ctx.fillText("👉", 60, stickY);
   ctx.fillText("👈", TW - 150, stickY);
 
-  /* botão (Open Sans) */
-  const rodY = 1692, rodH = 104;
+  /* botão (Open Sans) — encostado na linha do quadriculado de baixo */
+  const rodY = 1732, rodH = 104;
   ctx.font = '800 50px "Open Sans"';
   const rodT = "CLIQUE NO LINK ACIMA";
   const rodL = ctx.measureText(rodT).width + 120;
