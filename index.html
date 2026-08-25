@@ -97,6 +97,11 @@
     padding:7px 8px 7px 12px;margin-top:11px;
   }
   .codigo-cupom{font-weight:700;font-size:16px;letter-spacing:1px;word-break:break-all}
+  .selo-tamanho{
+    display:inline-block;background:var(--lilas);border:2.4px solid var(--tinta);
+    border-radius:10px;box-shadow:var(--sombra-p);font-weight:700;font-size:13.5px;
+    padding:6px 12px;margin-top:11px;
+  }
 
   .vazio{text-align:center;padding:36px 20px;font-size:14.5px;font-weight:500}
   .vazio .emoji{font-size:44px;margin-bottom:12px}
@@ -579,9 +584,11 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
   const temPreco = !!String(p.preco || "").trim();
   const temParc = !!String(p.parcelas || "").trim();
   const temCupom = !!String(p.cupom || "").trim();
+  const temTam = !!String(p.tamanho || "").trim();
   let altBloco = altNome;
   if (temPreco) altBloco += 92;
   if (temParc) altBloco += 44;
+  if (temTam) altBloco += 78;
   if (temCupom) altBloco += 84;
   let y = jan.cy + Math.max(24, Math.floor((jan.ch - altBloco) / 2)) + 36;
 
@@ -607,6 +614,23 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
     ctx.font = '600 30px "Space Grotesk"';
     ctx.fillText(quebrarLinhas(ctx, p.parcelas, txtLarg, 1)[0] || "", txtX, y);
     y += 4;
+  }
+
+  if (temTam){
+    y += 24;
+    ctx.font = '700 30px "Space Grotesk"';
+    const textoT = "📏 Tamanho: " + String(p.tamanho);
+    const largT = Math.min(txtLarg, ctx.measureText(textoT).width + 40);
+    const altT = 56;
+    ctx.save();
+    ctx.fillStyle = COR.lilas;
+    rRect(ctx, txtX, y - 8, largT, altT, 14); ctx.fill();
+    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 4.5;
+    rRect(ctx, txtX, y - 8, largT, altT, 14); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = COR.tinta;
+    ctx.fillText(textoT, txtX + 20, y + 28);
+    y += altT - 2;
   }
 
   if (temCupom){
@@ -687,6 +711,7 @@ function telaStory(app, id){
         <div class="nome">${esc(p.nome)}</div>
         ${p.preco ? `<div class="preco">${esc(precoBonito(p.preco))}</div>` : ""}
         ${p.parcelas ? `<div class="parcelas">${esc(p.parcelas)}</div>` : ""}
+        ${p.tamanho ? `<div class="selo-tamanho">📏 Tamanho: ${esc(p.tamanho)}</div>` : ""}
         ${cupom ? `
         <div class="caixa-cupom">
           <span class="codigo-cupom">${esc(cupom.toUpperCase())}</span>
@@ -808,11 +833,13 @@ function telaAdmin(app){
               <input id="p${n}-parcelas" value="${esc(p.parcelas || "")}" placeholder="Ex.: ou 10x de R$ 29,99"></div>
           </div>
           <div class="duas-colunas">
+            <div class="campo"><label>Tamanho (opcional)</label>
+              <input id="p${n}-tamanho" value="${esc(p.tamanho || "")}" placeholder="Ex.: só 43 · 39 ao 41 · P ao GG"></div>
             <div class="campo"><label>Cupom (opcional)</label>
               <input id="p${n}-cupom" value="${esc(p.cupom || "")}" placeholder="Ex.: LIVE"></div>
-            <div class="campo"><label>Link do produto</label>
-              <input id="p${n}-link" value="${esc(p.link || "")}" placeholder="https://..."></div>
           </div>
+          <div class="campo"><label>Link do produto</label>
+            <input id="p${n}-link" value="${esc(p.link || "")}" placeholder="https://..."></div>
         </div>
       </div>`;
   }
@@ -900,6 +927,7 @@ function lerProduto(n, anterior){
     nome: document.getElementById("p" + n + "-nome").value.trim(),
     preco: document.getElementById("p" + n + "-preco").value.trim(),
     parcelas: document.getElementById("p" + n + "-parcelas").value.trim(),
+    tamanho: document.getElementById("p" + n + "-tamanho").value.trim(),
     cupom: document.getElementById("p" + n + "-cupom").value.trim(),
     link: document.getElementById("p" + n + "-link").value.trim(),
     img: fotosTmp[n] || (anterior && anterior.img) || ""
