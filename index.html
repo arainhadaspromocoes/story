@@ -731,7 +731,7 @@ async function desenharArteZap(story, canvas){
   /* só as fotos dos dois produtos, emolduradas, lado a lado */
   const prods = (story.produtos || []).slice(0, 2);
   const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
-  const fl = 470, gap = 60;
+  const fl = prods.length === 1 ? 640 : 512, gap = 26;
   const total = prods.length === 1 ? fl : fl * 2 + gap;
   const x0 = ZW/2 - total/2, fy = ZH/2 - fl/2;
   prods.forEach(function(p, i){
@@ -768,7 +768,7 @@ async function desenharArteZapInfo(story, canvas){
 
   const prods = (story.produtos || []).slice(0, 2);
   const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
-  const jw = 492, gap = 24, jh = 900;
+  const jw = 516, gap = 16, jh = 960;
   const x0 = prods.length === 1 ? ZW/2 - jw/2 : ZW/2 - (jw*2 + gap)/2;
   const jy = ZH/2 - jh/2;
 
@@ -793,8 +793,8 @@ async function desenharArteZapInfo(story, canvas){
     ctx.globalAlpha = 1; ctx.textAlign = "left";
     ctx.restore();
 
-    const fl = 330;
-    const fx = jx + (jw - fl)/2, fy2 = jy + AB + 30;
+    const fl = jw - 36;
+    const fx = jx + (jw - fl)/2, fy2 = jy + AB + 22;
     const img = imgs[i];
     ctx.save();
     ctx.fillStyle = COR.tinta; rRect(ctx, fx + 8, fy2 + 8, fl, fl, 16); ctx.fill();
@@ -809,17 +809,17 @@ async function desenharArteZapInfo(story, canvas){
     }
     ctx.restore();
 
-    const txtX = jx + 30, txtLarg = jw - 60;
-    let y = fy2 + fl + 58;
+    const txtX = jx + 26, txtLarg = jw - 52;
+    let y = fy2 + fl + 50;
     ctx.textBaseline = "alphabetic";
     ctx.fillStyle = COR.tinta;
     ctx.font = '700 27px "Open Sans"';
     const linhas = quebrarLinhas(ctx, p.nome, txtLarg, 2);
-    linhas.forEach(function(l){ ctx.fillText(l, txtX, y); y += 36; });
-    if (linhas.length === 1) y += 36;
+    linhas.forEach(function(l){ ctx.fillText(l, txtX, y); y += 34; });
+    if (linhas.length === 1) y += 34;
 
     if (String(p.preco || "").trim()){
-      y += 34;
+      y += 30;
       ctx.fillStyle = COR.azul;
       let f = 52; ctx.font = '700 ' + f + 'px "Open Sans"';
       const ptxt = precoBonito(p.preco);
@@ -827,12 +827,12 @@ async function desenharArteZapInfo(story, canvas){
       ctx.fillText(ptxt, txtX, y);
     }
     if (String(p.parcelas || "").trim()){
-      y += 34;
+      y += 32;
       ctx.fillStyle = "#4a4a55"; ctx.font = '600 22px "Open Sans"';
       ctx.fillText(quebrarLinhas(ctx, p.parcelas, txtLarg, 1)[0] || "", txtX, y);
     }
     if (String(p.tamanho || "").trim()){
-      y += 26;
+      y += 24;
       const tT = "📏 Tamanho: " + p.tamanho;
       let fT = 22; ctx.font = '700 ' + fT + 'px "Open Sans"';
       while (ctx.measureText(tT).width + 30 > txtLarg && fT > 15){ fT -= 1; ctx.font = '700 ' + fT + 'px "Open Sans"'; }
@@ -845,7 +845,7 @@ async function desenharArteZapInfo(story, canvas){
       y += aT;
     }
     if (String(p.cupom || "").trim()){
-      y += 24;
+      y += 22;
       const tC = "🎟️ Cupom: " + String(p.cupom).toUpperCase();
       let fC = 22; ctx.font = '700 ' + fC + 'px "Open Sans"';
       while (ctx.measureText(tC).width + 34 > txtLarg && fC > 15){ fC -= 1; ctx.font = '700 ' + fC + 'px "Open Sans"'; }
