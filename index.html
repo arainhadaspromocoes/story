@@ -455,10 +455,10 @@ function desenharJanela(ctx, x, y, w, h, corBarra, titulo, alturaBarra, rotuloDi
   rRect(ctx, x, y, w, h, 20); ctx.stroke();
   ctx.fillStyle = COR.tinta;
   ctx.textBaseline = "middle";
-  ctx.font = '700 30px "Space Grotesk"';
+  ctx.font = '700 30px "Open Sans"';
   ctx.fillText(String(titulo || ""), x + 26, y + AB/2 + 2);
   if (rotuloDireita){
-    ctx.font = '600 23px "Space Grotesk"';
+    ctx.font = '600 23px "Open Sans"';
     ctx.textAlign = "right";
     ctx.globalAlpha = .55;
     ctx.fillText(rotuloDireita, x + w - 24, y + AB/2 + 2);
@@ -525,14 +525,15 @@ function medirChipInsta(ctx, arroba, alturaChip, fonte){
 }
 
 async function desenharArte(story, canvas){
-  try { await document.fonts.load('700 76px "Space Grotesk"'); } catch(e){}
-  try { await document.fonts.load('600 32px "Space Grotesk"'); } catch(e){}
+  try { await document.fonts.load('700 76px "Open Sans"'); } catch(e){}
+  try { await document.fonts.load('800 50px "Open Sans"'); } catch(e){}
+  try { await document.fonts.load('600 32px "Open Sans"'); } catch(e){}
   canvas.width = ARTE_W; canvas.height = ARTE_H;
   const ctx = canvas.getContext("2d");
   desenharFundo(ctx);
 
   /* ---- cabeçalho G2: cápsulas creme + medalhão da coroa + Instagram colorido ---- */
-  const cy0 = 150, RMED = 88;
+  const cy0 = 128, RMED = 84;
   function pillArroba(x0, x1, v0, v1, txt){
     const h = 74, py = cy0 - h/2;
     ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
@@ -540,27 +541,27 @@ async function desenharArte(story, canvas){
     rRect(ctx, x0, py, x1 - x0, h, 37); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; ctx.stroke();
     const ic = 32;
     let f = 26;
-    ctx.font = '700 ' + f + 'px "Space Grotesk"';
+    ctx.font = '700 ' + f + 'px "Open Sans"';
     const zona = (v1 - v0) - 36;
     while (ic + 13 + ctx.measureText(txt).width > zona && f > 18){
-      f -= 1; ctx.font = '700 ' + f + 'px "Space Grotesk"';
+      f -= 1; ctx.font = '700 ' + f + 'px "Open Sans"';
     }
     const cw = ic + 13 + ctx.measureText(txt).width;
     const x = (v0 + v1)/2 - cw/2;
     desenharInsta(ctx, x, cy0 - ic/2, ic, gradInsta(ctx, x, cy0 - ic/2, ic));
     ctx.fillStyle = COR.tinta;
     ctx.textBaseline = "middle";
-    ctx.fillText(txt, x + ic + 13, cy0 + 2);
+    ctx.fillText(txt, x + ic + 13, cy0 + 4);
   }
-  pillArroba(60, 560, 60, ARTE_W/2 - RMED - 8, "@arainhadaspromocoes");
-  pillArroba(520, 1020, ARTE_W/2 + RMED + 8, 1020, "@imperadordaspromocoes");
+  pillArroba(60, 562, 60, ARTE_W/2 - RMED - 10, "@arainhadaspromocoes");
+  pillArroba(518, 1020, ARTE_W/2 + RMED + 10, 1020, "@imperadordaspromocoes");
   /* medalhão central com a coroa */
   ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
   ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED, 0, Math.PI*2); ctx.fillStyle = COR.tinta; ctx.fill(); ctx.restore();
   ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED, 0, Math.PI*2); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 8; ctx.stroke();
   ctx.beginPath(); ctx.arc(ARTE_W/2, cy0, RMED - 15, 0, Math.PI*2); ctx.setLineDash([3, 8]); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
   ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 4; ctx.shadowOffsetY = 4;
-  ctx.font = "80px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.font = "76px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillText("👑", ARTE_W/2, cy0 - 3); ctx.restore();
   ctx.textAlign = "left";
 
@@ -581,7 +582,7 @@ async function desenharArte(story, canvas){
   ctx.fillText("👉", 60, 1636);
   ctx.fillText("👈", ARTE_W - 152, 1636);
   const rodY = 1694, rodH = 108;
-  ctx.font = '700 52px "Space Grotesk"';
+  ctx.font = '800 50px "Open Sans"';
   const rodT = "CLIQUE NO LINK ACIMA";
   const rodL = ctx.measureText(rodT).width + 120;
   const rodX = ARTE_W/2 - rodL/2;
@@ -589,7 +590,7 @@ async function desenharArte(story, canvas){
   ctx.fillStyle = COR.amarelo; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.fill();
   ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.stroke();
   ctx.fillStyle = COR.tinta;
-  ctx.font = '700 52px "Space Grotesk"';
+  ctx.font = '800 50px "Open Sans"';
   ctx.fillText(rodT, rodX + 60, rodY + rodH/2 + 4);
 }
 
@@ -630,7 +631,7 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
   }
 
   ctx.textBaseline = "alphabetic";
-  ctx.font = '700 38px "Space Grotesk"';
+  ctx.font = '700 38px "Open Sans"';
   const linhasNome = quebrarLinhas(ctx, p.nome, txtLarg, 3);
   const altNome = linhasNome.length * 48;
   const temPreco = !!String(p.preco || "").trim();
@@ -645,16 +646,16 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
   let y = jan.cy + Math.max(24, Math.floor((jan.ch - altBloco) / 2)) + 36;
 
   ctx.fillStyle = COR.tinta;
-  ctx.font = '700 38px "Space Grotesk"';
+  ctx.font = '700 38px "Open Sans"';
   linhasNome.forEach(function(l){ ctx.fillText(l, txtX, y); y += 48; });
 
   if (temPreco){
     y += 40;
     ctx.fillStyle = COR.azul;
-    ctx.font = '700 76px "Space Grotesk"';
+    ctx.font = '700 76px "Open Sans"';
     let ptxt = precoBonito(p.preco);
     while (ctx.measureText(ptxt).width > txtLarg && parseInt(ctx.font) > 40){
-      ctx.font = '700 ' + (parseInt(ctx.font) - 4) + 'px "Space Grotesk"';
+      ctx.font = '700 ' + (parseInt(ctx.font) - 4) + 'px "Open Sans"';
     }
     ctx.fillText(ptxt, txtX, y);
     y += 8;
@@ -663,7 +664,7 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
   if (temParc){
     y += 34;
     ctx.fillStyle = "#4a4a55";
-    ctx.font = '600 30px "Space Grotesk"';
+    ctx.font = '600 30px "Open Sans"';
     ctx.fillText(quebrarLinhas(ctx, p.parcelas, txtLarg, 1)[0] || "", txtX, y);
     y += 4;
   }
@@ -672,10 +673,10 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
     y += 24;
     const textoT = "📏 Tamanho: " + String(p.tamanho);
     let fT = 28;
-    ctx.font = '700 ' + fT + 'px "Space Grotesk"';
+    ctx.font = '700 ' + fT + 'px "Open Sans"';
     while (ctx.measureText(textoT).width + 36 > txtLarg && fT > 17){
       fT -= 1;
-      ctx.font = '700 ' + fT + 'px "Space Grotesk"';
+      ctx.font = '700 ' + fT + 'px "Open Sans"';
     }
     const largT = Math.min(txtLarg, ctx.measureText(textoT).width + 36);
     const altT = Math.max(46, fT + 26);
@@ -696,10 +697,10 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
     y += 26;
     const texto = "🎟️ Cupom: " + String(p.cupom).toUpperCase();
     let fC = 30;
-    ctx.font = '700 ' + fC + 'px "Space Grotesk"';
+    ctx.font = '700 ' + fC + 'px "Open Sans"';
     while (ctx.measureText(texto).width + 40 > txtLarg && fC > 17){
       fC -= 1;
-      ctx.font = '700 ' + fC + 'px "Space Grotesk"';
+      ctx.font = '700 ' + fC + 'px "Open Sans"';
     }
     const larg = Math.min(txtLarg, ctx.measureText(texto).width + 40);
     const alt = Math.max(50, fC + 28);
