@@ -718,8 +718,6 @@ function desenharProduto(ctx, p, img, jan, fotoDireita){
 }
 
 async function desenharArteZap(story, canvas){
-  try { await document.fonts.load('700 44px "Open Sans"'); } catch(e){}
-  try { await document.fonts.load('800 40px "Open Sans"'); } catch(e){}
   const ZW = 1080, ZH = 1080;
   canvas.width = ZW; canvas.height = ZH;
   const ctx = canvas.getContext("2d");
@@ -730,165 +728,31 @@ async function desenharArteZap(story, canvas){
   for (let gx = 0; gx <= ZW; gx += 54){ ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ZH); ctx.stroke(); }
   for (let gy = 0; gy <= ZH; gy += 54){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ZW, gy); ctx.stroke(); }
 
-  /* cabeçalho no padrão aprovado (compacto) */
-  const cy0 = 92, RM = 64;
-  function pillZ(x0, x1, v0, v1, txt){
-    const h = 58, py = cy0 - h/2;
-    ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
-    rRect(ctx, x0, py, x1 - x0, h, 29); ctx.fillStyle = COR.papel; ctx.fill(); ctx.restore();
-    rRect(ctx, x0, py, x1 - x0, h, 29); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 4; ctx.stroke();
-    const ic = 26;
-    let f = 21;
-    ctx.font = '700 ' + f + 'px "Open Sans"';
-    const zona = (v1 - v0) - 28;
-    while (ic + 10 + ctx.measureText(txt).width > zona && f > 14){ f--; ctx.font = '700 ' + f + 'px "Open Sans"'; }
-    const cw = ic + 10 + ctx.measureText(txt).width;
-    const x = (v0 + v1)/2 - cw/2;
-    desenharInsta(ctx, x, cy0 - ic/2, ic, gradInsta(ctx, x, cy0 - ic/2, ic));
-    ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
-    ctx.fillText(txt, x + ic + 10, cy0 + 3);
-  }
-  pillZ(44, 560, 44, ZW/2 - RM - 8, "@arainhadaspromocoes");
-  pillZ(520, 1036, ZW/2 + RM + 8, 1036, "@imperadordaspromocoes");
-  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowOffsetX = 5; ctx.shadowOffsetY = 5;
-  ctx.beginPath(); ctx.arc(ZW/2, cy0, RM, 0, Math.PI*2); ctx.fillStyle = COR.tinta; ctx.fill(); ctx.restore();
-  ctx.beginPath(); ctx.arc(ZW/2, cy0, RM, 0, Math.PI*2); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 6; ctx.stroke();
-  ctx.beginPath(); ctx.arc(ZW/2, cy0, RM - 11, 0, Math.PI*2); ctx.setLineDash([3, 7]); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
-  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-  ctx.font = "58px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText("👑", ZW/2, cy0 - 2); ctx.restore();
-  ctx.textAlign = "left";
-
-  /* duas janelas lado a lado */
+  /* só as fotos dos dois produtos, emolduradas, lado a lado */
   const prods = (story.produtos || []).slice(0, 2);
   const imgs = await Promise.all(prods.map(function(p){ return carregarImg(p.img); }));
-  const jy = 182, jh = 656, jw = 492, gap = 24;
+  const fl = 470, gap = 60;
+  const total = prods.length === 1 ? fl : fl * 2 + gap;
+  const x0 = ZW/2 - total/2, fy = ZH/2 - fl/2;
   prods.forEach(function(p, i){
-    const jx = prods.length === 1 ? ZW/2 - jw/2 : 44 + i * (jw + gap);
-    celulaZap(ctx, p, imgs[i], jx, jy, jw, jh, i);
-  });
-
-  /* CTA: link vai na mensagem, embaixo da foto */
-  const rodY = 912, rodH = 92;
-  ctx.font = '800 40px "Open Sans"';
-  ctx.textBaseline = "middle";
-  const rodT = "CLIQUE NO LINK ABAIXO";
-  const rodL = ctx.measureText(rodT).width + 100;
-  const rodX = ZW/2 - rodL/2;
-  ctx.fillStyle = COR.tinta; rRect(ctx, rodX + 8, rodY + 8, rodL, rodH, 18); ctx.fill();
-  ctx.fillStyle = COR.amarelo; rRect(ctx, rodX, rodY, rodL, rodH, 18); ctx.fill();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; rRect(ctx, rodX, rodY, rodL, rodH, 18); ctx.stroke();
-  ctx.fillStyle = COR.tinta;
-  ctx.font = '800 40px "Open Sans"';
-  ctx.textAlign = "center";
-  ctx.fillText(rodT, ZW/2, rodY + rodH/2 + 3);
-  ctx.textAlign = "left";
-  ctx.font = "60px serif";
-  ctx.fillText("👇", 70, rodY + rodH/2);
-  ctx.fillText("👇", ZW - 130, rodY + rodH/2);
-}
-
-function celulaZap(ctx, p, img, jx, jy, jw, jh, i){
-  /* janela da célula */
-  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 9; ctx.shadowOffsetY = 9;
-  rRect(ctx, jx, jy, jw, jh, 18); ctx.fillStyle = COR.papel; ctx.fill(); ctx.restore();
-  rRect(ctx, jx, jy, jw, jh, 18); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; ctx.stroke();
-  /* barra */
-  const AB = 46;
-  ctx.save();
-  rRect(ctx, jx, jy, jw, jh, 18); ctx.clip();
-  ctx.fillStyle = i % 2 ? COR.verde : COR.amarelo;
-  ctx.fillRect(jx, jy, jw, AB);
-  ctx.restore();
-  ctx.beginPath(); ctx.moveTo(jx, jy + AB); ctx.lineTo(jx + jw, jy + AB);
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5; ctx.stroke();
-  rRect(ctx, jx, jy, jw, jh, 18); ctx.stroke();
-  ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
-  ctx.font = '700 22px "Open Sans"';
-  ctx.fillText("Promoção " + (i + 1), jx + 18, jy + AB/2 + 2);
-  ctx.font = '600 16px "Open Sans"';
-  ctx.textAlign = "right"; ctx.globalAlpha = .55;
-  ctx.fillText("anúncio", jx + jw - 16, jy + AB/2 + 2);
-  ctx.globalAlpha = 1; ctx.textAlign = "left";
-
-  /* foto emoldurada */
-  const fl = 300, fx = jx + (jw - fl)/2, fy = jy + AB + 18;
-  if (img){
+    const fx = x0 + i * (fl + gap);
     ctx.save();
     ctx.fillStyle = COR.tinta;
-    rRect(ctx, fx + 7, fy + 7, fl, fl, 14); ctx.fill();
+    rRect(ctx, fx + 10, fy + 10, fl, fl, 18); ctx.fill();
     ctx.fillStyle = "#FFFFFF";
-    rRect(ctx, fx, fy, fl, fl, 14); ctx.fill();
-    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 4.5;
-    rRect(ctx, fx, fy, fl, fl, 14); ctx.stroke();
+    rRect(ctx, fx, fy, fl, fl, 18); ctx.fill();
+    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6;
+    rRect(ctx, fx, fy, fl, fl, 18); ctx.stroke();
     ctx.clip();
-    const m = 10;
-    const fator = Math.min((fl - m*2) / img.width, (fl - m*2) / img.height);
-    const w = img.width * fator, h = img.height * fator;
-    ctx.drawImage(img, fx + (fl - w)/2, fy + (fl - h)/2, w, h);
-    ctx.restore();
-  }
-
-  /* textos */
-  const tx = jx + 22, tlarg = jw - 44;
-  let y = fy + fl + 40;
-  ctx.textBaseline = "alphabetic";
-  ctx.fillStyle = COR.tinta;
-  ctx.font = '700 23px "Open Sans"';
-  quebrarLinhas(ctx, p.nome, tlarg, 2).forEach(function(l){ ctx.fillText(l, tx, y); y += 30; });
-
-  if (String(p.preco || "").trim()){
-    y += 26;
-    ctx.fillStyle = COR.azul;
-    ctx.font = '700 46px "Open Sans"';
-    let ptxt = precoBonito(p.preco);
-    while (ctx.measureText(ptxt).width > tlarg && parseInt(ctx.font) > 26){
-      ctx.font = '700 ' + (parseInt(ctx.font) - 2) + 'px "Open Sans"';
+    const img = imgs[i];
+    if (img){
+      const m = 14;
+      const fator = Math.min((fl - m*2) / img.width, (fl - m*2) / img.height);
+      const w = img.width * fator, h = img.height * fator;
+      ctx.drawImage(img, fx + (fl - w)/2, fy + (fl - h)/2, w, h);
     }
-    ctx.fillText(ptxt, tx, y);
-    y += 6;
-  }
-  if (String(p.parcelas || "").trim()){
-    y += 22;
-    ctx.fillStyle = "#4a4a55";
-    ctx.font = '600 19px "Open Sans"';
-    ctx.fillText(quebrarLinhas(ctx, p.parcelas, tlarg, 1)[0] || "", tx, y);
-  }
-
-  /* selos: tamanho e cupom */
-  if (String(p.tamanho || "").trim()){
-    y += 20;
-    const textoT = "📏 " + String(p.tamanho);
-    let fT = 19;
-    ctx.font = '700 ' + fT + 'px "Open Sans"';
-    while (ctx.measureText(textoT).width + 26 > tlarg && fT > 13){ fT--; ctx.font = '700 ' + fT + 'px "Open Sans"'; }
-    const lT = Math.min(tlarg, ctx.measureText(textoT).width + 26);
-    ctx.fillStyle = COR.lilas;
-    rRect(ctx, tx, y - 4, lT, 38, 10); ctx.fill();
-    ctx.strokeStyle = COR.tinta; ctx.lineWidth = 3;
-    rRect(ctx, tx, y - 4, lT, 38, 10); ctx.stroke();
-    ctx.fillStyle = COR.tinta;
-    ctx.textBaseline = "middle";
-    ctx.fillText(textoT, tx + 13, y - 4 + 20);
-    ctx.textBaseline = "alphabetic";
-    y += 40;
-  }
-  if (String(p.cupom || "").trim()){
-    y += 20;
-    const textoC = "🎟️ Cupom: " + String(p.cupom).toUpperCase();
-    let fC = 19;
-    ctx.font = '700 ' + fC + 'px "Open Sans"';
-    while (ctx.measureText(textoC).width + 26 > tlarg && fC > 13){ fC--; ctx.font = '700 ' + fC + 'px "Open Sans"'; }
-    const lC = Math.min(tlarg, ctx.measureText(textoC).width + 26);
-    ctx.fillStyle = COR.amarelo;
-    rRect(ctx, tx, y - 4, lC, 38, 10); ctx.fill();
-    ctx.save(); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 3; ctx.setLineDash([8, 6]);
-    rRect(ctx, tx, y - 4, lC, 38, 10); ctx.stroke(); ctx.restore();
-    ctx.fillStyle = COR.tinta;
-    ctx.textBaseline = "middle";
-    ctx.fillText(textoC, tx + 13, y - 4 + 20);
-    ctx.textBaseline = "alphabetic";
-  }
+    ctx.restore();
+  });
 }
 
 function baixarArteZap(id){
@@ -966,10 +830,10 @@ async function desenharTemplateDivulgador(canvas){
   ctx.fillText("👑", TW/2, cy0 - 3); ctx.restore();
   ctx.textAlign = "left";
 
-  /* janela branca onde o carimbo do programa entra */
-  ctx.save(); ctx.shadowColor = "rgba(0,0,0,.45)"; ctx.shadowOffsetX = 12; ctx.shadowOffsetY = 12;
-  rRect(ctx, 44, 300, 992, 1252, 22); ctx.fillStyle = "#FFFFFF"; ctx.fill(); ctx.restore();
-  rRect(ctx, 44, 300, 992, 1252, 22); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; ctx.stroke();
+  /* faixa branca de ponta a ponta onde o carimbo do programa entra */
+  ctx.fillStyle = "#FFFFFF"; ctx.fillRect(0, 300, TW, 1252);
+  ctx.fillStyle = COR.tinta; ctx.fillRect(0, 293, TW, 7);
+  ctx.fillStyle = COR.tinta; ctx.fillRect(0, 1552, TW, 7);
 
   /* #anúncio no cantinho inferior direito da janela */
   ctx.font = '700 30px "Open Sans"';
