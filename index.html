@@ -747,7 +747,7 @@ async function desenharTemplateDivulgador(canvas){
   for (let gy = 0; gy <= TH; gy += 54){ ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(TW, gy); ctx.stroke(); }
 
   /* cabeçalho G2 (Open Sans nos arrobas) */
-  const cy0 = 128, RM = 84;
+  const cy0 = 150, RM = 84;
   function pillT(x0, x1, v0, v1, txt){
     const h = 72, py = cy0 - h/2;
     ctx.save(); ctx.shadowColor = "rgba(0,0,0,.35)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
@@ -762,10 +762,10 @@ async function desenharTemplateDivulgador(canvas){
     const x = (v0 + v1)/2 - cw/2;
     desenharInsta(ctx, x, cy0 - ic/2, ic, gradInsta(ctx, x, cy0 - ic/2, ic));
     ctx.fillStyle = COR.tinta; ctx.textBaseline = "middle";
-    ctx.fillText(txt, x + ic + 12, cy0 + 7);
+    ctx.fillText(txt, x + ic + 12, cy0 + 4);
   }
-  pillT(44, 448, 44, 448, "@arainhadaspromocoes");
-  pillT(632, 1036, 632, 1036, "@imperadordaspromocoes");
+  pillT(44, 562, 44, TW/2 - RM - 10, "@arainhadaspromocoes");
+  pillT(518, 1036, TW/2 + RM + 10, 1036, "@imperadordaspromocoes");
   ctx.save(); ctx.shadowColor = "rgba(0,0,0,.5)"; ctx.shadowOffsetX = 6; ctx.shadowOffsetY = 6;
   ctx.beginPath(); ctx.arc(TW/2, cy0, RM, 0, Math.PI*2); ctx.fillStyle = COR.tinta; ctx.fill(); ctx.restore();
   ctx.beginPath(); ctx.arc(TW/2, cy0, RM, 0, Math.PI*2); ctx.strokeStyle = COR.amarelo; ctx.lineWidth = 8; ctx.stroke();
