@@ -105,6 +105,18 @@
     padding:5px 6px 5px 10px;margin-top:8px;
   }
   .codigo-cupom{font-weight:700;font-size:14px;letter-spacing:1px;word-break:break-all}
+  @keyframes pulsar{
+    0%, 100%{ transform:scale(1); box-shadow:var(--sombra-m); }
+    50%{ transform:scale(1.035); box-shadow:6px 6px 0 0 var(--tinta); }
+  }
+  .btn-zap-grande{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    background:#25D366;border:var(--borda);border-radius:14px;
+    font-size:16.5px;font-weight:700;padding:15px 16px;color:var(--tinta);
+    box-shadow:var(--sombra-m);animation:pulsar 1.5s ease-in-out infinite;
+    text-transform:uppercase;letter-spacing:.3px;
+  }
+  .btn-zap-grande .zapemoji{font-size:24px}
   .selo-tamanho{
     display:inline-block;background:var(--lilas);border:2px solid var(--tinta);
     border-radius:8px;font-weight:700;font-size:12px;
@@ -219,18 +231,27 @@ const COL = db.collection("stories");
 
 /* ---------- DADOS (tempo real + reservas) ---------- */
 let stories = null;           // [{id, ...dados}]
+let configSite = {};          // doc _config (ex.: link do grupo do WhatsApp)
 let tempoRealOk = false;
-const CHAVE_CACHE = "stories_cache_v1";
-function guardarCache(){ try { localStorage.setItem(CHAVE_CACHE, JSON.stringify(stories)); } catch(e){} }
+const CHAVE_CACHE = "stories_cache_v2";
+function separarConfig(arr){
+  configSite = arr.find(function(x){ return x.id === "_config"; }) || configSite || {};
+  return arr.filter(function(x){ return x.id.charAt(0) !== "_"; });
+}
+function zapLink(){
+  return String(configSite.whatsapp || "https://chat.whatsapp.com/I6zDcwnyncMFooEi5vsbw3").trim();
+}
+function guardarCache(){ try { localStorage.setItem(CHAVE_CACHE, JSON.stringify({ s: stories, c: configSite })); } catch(e){} }
 try {
   const c = JSON.parse(localStorage.getItem(CHAVE_CACHE) || "null");
-  if (Array.isArray(c)) stories = c;
+  if (c && Array.isArray(c.s)){ stories = c.s; configSite = c.c || {}; }
 } catch(e){}
 
 COL.onSnapshot(function(snap){
   tempoRealOk = true;
-  stories = [];
-  snap.forEach(function(d){ stories.push(Object.assign({ id: d.id }, d.data())); });
+  const arr = [];
+  snap.forEach(function(d){ arr.push(Object.assign({ id: d.id }, d.data())); });
+  stories = separarConfig(arr);
   stories.sort(function(a,b){ return (b.criadaEm||0) - (a.criadaEm||0); });
   guardarCache();
   rota();
@@ -260,12 +281,13 @@ function carregarViaRest(){
     .then(function(j){
       buscandoRest = false;
       if (tempoRealOk) return;
-      stories = (j.documents || []).map(function(docu){
+      const arr = (j.documents || []).map(function(docu){
         const obj = {}, f = docu.fields || {};
         for (const k in f) obj[k] = valorRest(f[k]);
         obj.id = docu.name.split("/").pop();
         return obj;
       });
+      stories = separarConfig(arr);
       stories.sort(function(a,b){ return (b.criadaEm||0) - (a.criadaEm||0); });
       guardarCache();
       rota();
@@ -776,15 +798,11 @@ function telaStory(app, id){
   }).join("");
 
   app.innerHTML = `
-    <div class="container">
-      <div class="janela">
-        <div class="barra barra-lilas"><span>👑 Promoções do story</span></div>
-        <div class="corpo" style="padding:12px 14px;text-align:center">
-          <div class="hero-titulo" style="font-size:21px">📣 CORRE QUE TÁ VALENDO</div>
-          <div class="hero-sub" style="margin-top:4px;font-size:13px">As 2 promoções do story, com link direto 👇</div>
-        </div>
-      </div>
+    <div class="container" style="padding-top:16px">
       ${cards || `<div class="janela"><div class="vazio"><div class="emoji">📦</div>Os produtos aparecem aqui daqui a pouco!</div></div>`}
+      <a class="btn-zap-grande" href="${esc(zapLink())}" target="_blank" rel="noopener">
+        <span class="zapemoji">💬</span> Entra no grupo de ofertas do WhatsApp <span>↗</span>
+      </a>
     </div>` + rodapePadrao();
 }
 
@@ -952,6 +970,15 @@ function telaAdmin(app){
       </div>
 
       <div class="painel-secao">
+        <div class="barra barra-verde"><span>💬 Grupo do WhatsApp</span>${controles()}</div>
+        <div class="conteudo">
+          <div class="campo"><label>Link do grupo (aparece nas páginas dos duos)</label>
+            <input id="cfg-zap" value="${esc(configSite.whatsapp || "")}" placeholder="https://chat.whatsapp.com/..."></div>
+          <button class="btn btn-mini btn-verde" onclick="salvarZap()">💾 Salvar link do grupo</button>
+        </div>
+      </div>
+
+      <div class="painel-secao">
         <div class="barra barra-rosa"><span>📚 Duos já criados</span>${controles()}</div>
         <div class="conteudo">
           ${listaHtml || `<div class="vazio"><div class="emoji">📦</div>Nenhum duo ainda — cria o primeiro!</div>`}
@@ -963,6 +990,13 @@ function telaAdmin(app){
     const cv = document.getElementById("canvas-arte");
     if (cv) desenharArte(arteAberta, cv);
   }
+}
+
+function salvarZap(){
+  const v = document.getElementById("cfg-zap").value.trim();
+  COL.doc("_config").set({ whatsapp: v }, { merge: true }).then(function(){
+    toast("Link do grupo salvo! 💬");
+  }).catch(function(e){ toast("Erro: " + (e && e.message || e)); });
 }
 
 function fotoEscolhida(n, input){
