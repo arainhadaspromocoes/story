@@ -417,7 +417,7 @@ function desenharJanela(ctx, x, y, w, h, corBarra, titulo, alturaBarra, rotuloDi
   ctx.fillStyle = COR.tinta;
   ctx.textBaseline = "middle";
   ctx.font = '700 30px "Space Grotesk"';
-  ctx.fillText(String(titulo || "").toUpperCase(), x + 26, y + AB/2 + 2);
+  ctx.fillText(String(titulo || ""), x + 26, y + AB/2 + 2);
   if (rotuloDireita){
     ctx.font = '600 23px "Space Grotesk"';
     ctx.textAlign = "right";
@@ -441,16 +441,6 @@ function desenharFundo(ctx){
   for (let gy = 0; gy <= ARTE_H; gy += 54){
     ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ARTE_W, gy); ctx.stroke();
   }
-  ctx.save();
-  ctx.shadowColor = "rgba(0,0,0,.3)"; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 3;
-  ctx.textBaseline = "middle";
-  ctx.font = "44px serif";
-  ctx.fillText("✨", 28, 56);
-  ctx.fillText("💫", 1000, 56);
-  ctx.font = "36px serif";
-  ctx.fillText("⭐", 16, 1660);
-  ctx.fillText("✨", 1030, 1660);
-  ctx.restore();
 }
 
 function desenharInsta(ctx, x, y, s){
@@ -468,25 +458,19 @@ function desenharInsta(ctx, x, y, s){
 
 function chipInsta(ctx, arroba, x, y, alturaChip, fonte){
   ctx.font = fonte;
-  const icone = alturaChip * .52;
-  const larg = ctx.measureText(arroba).width + icone + 52;
-  ctx.fillStyle = COR.tinta;
-  rRect(ctx, x + 6, y + 6, larg, alturaChip, 14); ctx.fill();
-  ctx.fillStyle = COR.papel;
-  rRect(ctx, x, y, larg, alturaChip, 14); ctx.fill();
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 5;
-  rRect(ctx, x, y, larg, alturaChip, 14); ctx.stroke();
-  desenharInsta(ctx, x + 18, y + (alturaChip - icone)/2, icone);
+  const icone = alturaChip * .55;
+  const larg = ctx.measureText(arroba).width + icone + 14;
+  desenharInsta(ctx, x, y + (alturaChip - icone)/2, icone);
   ctx.fillStyle = COR.tinta;
   ctx.textBaseline = "middle";
   ctx.font = fonte;
-  ctx.fillText(arroba, x + icone + 32, y + alturaChip/2 + 2);
+  ctx.fillText(arroba, x + icone + 14, y + alturaChip/2 + 2);
   return larg;
 }
 
 function medirChipInsta(ctx, arroba, alturaChip, fonte){
   ctx.font = fonte;
-  return ctx.measureText(arroba).width + alturaChip * .52 + 52;
+  return ctx.measureText(arroba).width + alturaChip * .55 + 14;
 }
 
 async function desenharArte(story, canvas){
@@ -497,12 +481,12 @@ async function desenharArte(story, canvas){
   desenharFundo(ctx);
 
   /* ---- cabeçalho com os dois @ lado a lado ---- */
-  const cab = desenharJanela(ctx, 60, 100, 960, 178, "#8FC1F5", "👑🤴 A Rainha & O Imperador das Promoções");
-  const fChip = '700 27px "Space Grotesk"';
+  const cab = desenharJanela(ctx, 60, 100, 960, 178, "#8FC1F5", "👑🤴 Promoções em Dupla");
+  const fChip = '700 29px "Space Grotesk"';
   const alturaChip = 60;
   const w1 = medirChipInsta(ctx, "@arainhadaspromocoes", alturaChip, fChip);
   const w2 = medirChipInsta(ctx, "@imperadordaspromocoes", alturaChip, fChip);
-  const gap = 24;
+  const gap = 44;
   let cx0 = ARTE_W/2 - (w1 + gap + w2)/2;
   const chipY = cab.cy + Math.floor((cab.ch - alturaChip)/2) - 4;
   cx0 += chipInsta(ctx, "@arainhadaspromocoes", cx0, chipY, alturaChip, fChip) + gap;
@@ -522,21 +506,20 @@ async function desenharArte(story, canvas){
   /* ---- rodapé: espaço do link entre as setas + chamada sem cara de botão ---- */
   ctx.textBaseline = "middle";
   ctx.font = "88px serif";
-  ctx.fillText("👉", 44, 1505);
-  ctx.fillText("👈", ARTE_W - 140, 1505);
-  ctx.textAlign = "center";
-  ctx.lineJoin = "round";
-  ctx.font = '700 58px "Space Grotesk"';
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 12;
-  ctx.strokeText("CLIQUE NO LINK ACIMA", ARTE_W/2, 1602);
-  ctx.fillStyle = COR.amarelo;
-  ctx.fillText("CLIQUE NO LINK ACIMA", ARTE_W/2, 1602);
-  ctx.font = '700 32px "Space Grotesk"';
-  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 8;
-  ctx.strokeText("toca nele que a promoção abre na hora 🛒", ARTE_W/2, 1660);
-  ctx.fillStyle = "#FFFFFF";
-  ctx.fillText("toca nele que a promoção abre na hora 🛒", ARTE_W/2, 1660);
-  ctx.textAlign = "left";
+  ctx.fillText("👉", 44, 1520);
+  ctx.fillText("👈", ARTE_W - 140, 1520);
+  const rodY = 1694, rodH = 108;
+  ctx.font = '700 52px "Space Grotesk"';
+  const rodT = "CLIQUE NO LINK ACIMA";
+  const rodL = ctx.measureText(rodT).width + 160;
+  const rodX = ARTE_W/2 - rodL/2;
+  ctx.fillStyle = COR.tinta; rRect(ctx, rodX + 10, rodY + 10, rodL, rodH, 22); ctx.fill();
+  ctx.fillStyle = COR.amarelo; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.fill();
+  ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; rRect(ctx, rodX, rodY, rodL, rodH, 22); ctx.stroke();
+  ctx.fillStyle = COR.tinta;
+  ctx.font = '700 52px "Space Grotesk"';
+  ctx.fillText("👆", rodX + 34, rodY + rodH/2 + 4);
+  ctx.fillText(rodT, rodX + 108, rodY + rodH/2 + 4);
 }
 
 function desenharProduto(ctx, p, img, jan){
