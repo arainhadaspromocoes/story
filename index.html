@@ -30,7 +30,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{
-    font-family:"Space Grotesk",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    font-family:"Open Sans","Space Grotesk",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
     background-color:var(--azul);
     background-image:
       linear-gradient(rgba(255,255,255,.09) 1px, transparent 1px),
@@ -780,11 +780,12 @@ async function desenharTemplateDivulgador(canvas){
   rRect(ctx, 44, 300, 992, 1252, 22); ctx.fillStyle = "#FFFFFF"; ctx.fill(); ctx.restore();
   rRect(ctx, 44, 300, 992, 1252, 22); ctx.strokeStyle = COR.tinta; ctx.lineWidth = 6; ctx.stroke();
 
-  /* #anúncio no cantinho inferior esquerdo da janela */
+  /* #anúncio no cantinho inferior direito da janela */
   ctx.font = '700 30px "Open Sans"';
   ctx.fillStyle = COR.azul;
-  ctx.textBaseline = "alphabetic"; ctx.textAlign = "left";
-  ctx.fillText("#anúncio", 80, 1512);
+  ctx.textBaseline = "alphabetic"; ctx.textAlign = "right";
+  ctx.fillText("#anúncio", 1000, 1512);
+  ctx.textAlign = "left";
 
   /* mãozinhas centralizadas entre a janela e o botão */
   const stickY = 1628;
